@@ -1,9 +1,8 @@
-use core::{convert::Infallible, task::Poll};
+use core::{convert::Infallible, future::Future, pin::Pin, task::Poll};
 use std::{error, net::SocketAddr};
 
 use async_trait::async_trait;
 use axum::{http::Request as HttpRequest, response::Response as AxumResponse, Router, Server};
-use futures_util::{future::BoxFuture, FutureExt as _, TryFutureExt as _};
 use hyper::Body as HyperBody;
 use tower_service::Service;
 
@@ -52,7 +51,8 @@ where
 
     type Error = Infallible;
 
-    type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+    type Future =
+        Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
 
     fn poll_ready(
         &mut self,
@@ -62,42 +62,34 @@ where
     }
 
     fn call(&mut self, req: HttpRequest<B>) -> Self::Future {
-        assert_eq!(req.uri(), "/path_params/foo");
+        Box::pin(async move {
+            assert_eq!(req.uri(), "/path_params/foo");
 
-        path_from_request::<Vec<String>, B>(req)
-            .and_then(|(path, req)| {
-                assert_eq!(path.unwrap().0, vec!["foo"]);
+            let req = match path_from_request::<Vec<String>, B>(req).await {
+                Ok((path, req)) => {
+                    assert_eq!(path.unwrap().0, vec!["foo"]);
 
-                matched_path_from_request(req)
-                    .and_then(|(matched_path, _req)| {
-                        async move {
-                            assert_eq!(matched_path.unwrap().as_str(), "/path_params/:key");
-
-                            let body = HyperBody::empty();
-                            let mut res = AxumResponse::new(axum::body::boxed(body));
-                            res.headers_mut().insert("x", 1.into());
-
-                            res
-                        }
-                        .map(Ok)
-                        .boxed()
-                    })
-                    .or_else(|err| {
-                        async move {
-                            panic!("{}", err);
-                        }
-                        .map(Ok)
-                        .boxed()
-                    })
-                    .boxed()
-            })
-            .or_else(|err| {
-                async move {
+                    req
+                }
+                Err(err) => {
                     panic!("{}", err);
                 }
-                .map(Ok)
-                .boxed()
-            })
-            .boxed()
+            };
+
+            match matched_path_from_request(req).await {
+                Ok((matched_path, _req)) => {
+                    assert_eq!(matched_path.unwrap().as_str(), "/path_params/:key");
+                }
+                Err(err) => {
+                    panic!("{}", err);
+                }
+            }
+
+            let body = HyperBody::empty();
+            let mut res = AxumResponse::new(axum::body::boxed(body));
+            res.headers_mut().insert("x", 1.into());
+
+            Ok(res)
+        })
     }
 }

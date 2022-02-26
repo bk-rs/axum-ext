@@ -23,7 +23,6 @@ hyper = { version = "0.14", default-features = false }
 
 tokio = { version = "1.16", features = ["macros", "rt-multi-thread", "time"] }
 
-futures-util = { version = "0.3", default-features = false, features = ["std"] }
 async-trait = { version = "0.1", default-features = false }
 portpicker = { version = "0.1", default-features = false }
 isahc = { version = "1.6", default-features = false }
