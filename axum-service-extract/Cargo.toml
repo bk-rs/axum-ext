@@ -1,0 +1,29 @@
+[package]
+name = "axum-service-extract"
+version = "0.0.0"
+authors = ["vkill <vkill.net@gmail.com>"]
+edition = "2021"
+description = "hyper Request Body"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/bk-rs/axum-ext"
+homepage = "https://github.com/bk-rs/axum-ext"
+documentation = "https://docs.rs/axum-service-extract"
+keywords = []
+categories = []
+readme = "README.md"
+
+[dependencies]
+axum = { version = "0.4", default-features = false }
+serde = { version = "1.0", default-features = false }
+
+[dev-dependencies]
+axum = { version = "0.4", default-features = false, features = ["http1"] }
+tower-service = { version = "0.3", default-features = false }
+hyper = { version = "0.14", default-features = false }
+
+tokio = { version = "1.16", features = ["macros", "rt-multi-thread", "time"] }
+
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+async-trait = { version = "0.1", default-features = false }
+portpicker = { version = "0.1", default-features = false }
+isahc = { version = "1.6", default-features = false }
