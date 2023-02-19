@@ -1,5 +1,3 @@
-use core::fmt;
-
 use axum::extract::rejection::BodyAlreadyExtracted;
 
 //
@@ -8,11 +6,11 @@ pub enum Error<T> {
     BodyAlreadyExtracted(BodyAlreadyExtracted),
 }
 
-impl<T> fmt::Debug for Error<T>
+impl<T> core::fmt::Debug for Error<T>
 where
-    T: fmt::Debug,
+    T: core::fmt::Debug,
 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::Rejection(err) => f.debug_tuple("Error::Rejection").field(err).finish(),
             Self::BodyAlreadyExtracted(err) => f
@@ -23,13 +21,13 @@ where
     }
 }
 
-impl<T> fmt::Display for Error<T>
+impl<T> core::fmt::Display for Error<T>
 where
-    T: fmt::Debug,
+    T: core::fmt::Debug,
 {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{self:?}")
     }
 }
 
-impl<T> std::error::Error for Error<T> where T: fmt::Debug {}
+impl<T> std::error::Error for Error<T> where T: core::fmt::Debug {}

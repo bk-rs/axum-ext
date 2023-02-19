@@ -1,5 +1,5 @@
 use core::{convert::Infallible, future::Future, pin::Pin, task::Poll};
-use std::{error, net::SocketAddr};
+use std::net::SocketAddr;
 
 use async_trait::async_trait;
 use axum::{http::Request as HttpRequest, response::Response as AxumResponse, Router, Server};
@@ -9,7 +9,7 @@ use tower_service::Service;
 use axum_service_extract::{matched_path::matched_path_from_request, path::path_from_request};
 
 #[tokio::test]
-async fn simple() -> Result<(), Box<dyn error::Error>> {
+async fn simple() -> Result<(), Box<dyn std::error::Error>> {
     //
     let listen_addr = SocketAddr::from(([127, 0, 0, 1], portpicker::pick_unused_port().unwrap()));
     println!("listen_addr {listen_addr:?}");
