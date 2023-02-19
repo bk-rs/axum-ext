@@ -73,7 +73,9 @@ where
     };
 
     //
-    let req = request_parts.try_into_request().map_err(Error::AxumError)?;
+    let req = request_parts
+        .try_into_request()
+        .map_err(Error::BodyAlreadyExtracted)?;
     let (parts, _) = req.into_parts();
     let extensions = parts.extensions;
 
