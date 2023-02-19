@@ -1,77 +1,37 @@
 use axum::{
-    extract::{rejection::PathRejection, FromRequestParts as _, Path},
-    http::{
-        request::Parts as HttpRequestParts, Extensions as HttpExtensions, Request as HttpRequest,
-    },
+    extract::{rejection::PathRejection, Path},
+    http::{Extensions as HttpExtensions, Request as HttpRequest},
 };
 use serde::de::DeserializeOwned;
+
+use crate::{extensions_extract_from_request, extract_from_extensions};
 
 //
 pub async fn path_from_request<T, B>(
     req: HttpRequest<B>,
-) -> Result<(Option<Path<T>>, HttpRequest<B>), PathRejection>
+) -> Result<(Option<Path<T>>, HttpRequest<B>), (PathRejection, HttpRequest<B>)>
 where
     T: DeserializeOwned + Send,
 {
-    //
-    let (mut parts, extensions, body) = {
-        let (
-            HttpRequestParts {
-                method,
-                uri,
-                version,
-                headers,
-                extensions,
-                ..
-            },
-            body,
-        ) = req.into_parts();
-        let (mut parts, _) = HttpRequest::new(()).into_parts();
-        parts.method = method;
-        parts.uri = uri;
-        parts.version = version;
-        parts.headers = headers;
-
-        (parts, extensions, body)
-    };
-
-    //
-    let (path, extensions) = path_from_extensions(extensions).await?;
-
-    //
-    parts.extensions = extensions;
-    let req = HttpRequest::from_parts(parts, body);
-
-    //
-    Ok((path, req))
+    let (path, req) = extensions_extract_from_request(req).await;
+    match path {
+        Ok(x) => Ok((Some(x), req)),
+        Err(PathRejection::MissingPathParams(_)) => Ok((None, req)),
+        Err(err) => Err((err, req)),
+    }
 }
 
 //
 pub async fn path_from_extensions<T>(
     extensions: HttpExtensions,
-) -> Result<(Option<Path<T>>, HttpExtensions), PathRejection>
+) -> Result<(Option<Path<T>>, HttpExtensions), (PathRejection, HttpExtensions)>
 where
     T: DeserializeOwned + Send,
 {
-    //
-    let mut parts = {
-        let (mut parts, _) = HttpRequest::new(()).into_parts();
-        parts.extensions = extensions;
-        parts
-    };
-
-    //
-    let path = match Path::<T>::from_request_parts(&mut parts, &()).await {
-        Ok(path) => Some(path),
-        Err(PathRejection::MissingPathParams(_)) => None,
-        Err(err) => {
-            return Err(err);
-        }
-    };
-
-    //
-    let extensions = parts.extensions;
-
-    //
-    Ok((path, extensions))
+    let (path, extensions) = extract_from_extensions(extensions).await;
+    match path {
+        Ok(x) => Ok((Some(x), extensions)),
+        Err(PathRejection::MissingPathParams(_)) => Ok((None, extensions)),
+        Err(err) => Err((err, extensions)),
+    }
 }

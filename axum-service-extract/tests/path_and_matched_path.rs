@@ -72,7 +72,7 @@ where
                     req
                 }
                 Err(err) => {
-                    panic!("{}", err);
+                    panic!("{err}");
                 }
             };
 
@@ -81,7 +81,7 @@ where
                     assert_eq!(matched_path.unwrap().as_str(), "/path_params/:key");
                 }
                 Err(err) => {
-                    panic!("{}", err);
+                    panic!("{err}");
                 }
             }
 

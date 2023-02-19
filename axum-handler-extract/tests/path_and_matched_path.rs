@@ -62,8 +62,8 @@ where
 
                     req
                 }
-                Err(err) => {
-                    panic!("{}", err);
+                Err((err, _)) => {
+                    panic!("{err}");
                 }
             };
 
@@ -71,8 +71,8 @@ where
                 Ok((matched_path, _req)) => {
                     assert_eq!(matched_path.unwrap().as_str(), "/path_params/:key");
                 }
-                Err(err) => {
-                    panic!("{}", err);
+                Err((err, _)) => {
+                    panic!("{err}");
                 }
             }
 
