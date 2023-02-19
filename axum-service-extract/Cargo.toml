@@ -1,9 +1,9 @@
 [package]
 name = "axum-service-extract"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["vkill <vkill.net@gmail.com>"]
 edition = "2021"
-description = "axum service extract"
+description = "axum (v0.5) service extract"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bk-rs/axum-ext"
 homepage = "https://github.com/bk-rs/axum-ext"
