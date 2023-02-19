@@ -12,7 +12,7 @@ use axum_service_extract::{matched_path::matched_path_from_request, path::path_f
 async fn test() -> Result<(), Box<dyn error::Error>> {
     //
     let listen_addr = SocketAddr::from(([127, 0, 0, 1], portpicker::pick_unused_port().unwrap()));
-    println!("listen_addr {:?}", listen_addr);
+    println!("listen_addr {listen_addr:?}");
 
     //
     let server_task = tokio::task::spawn(async move {
