@@ -5,10 +5,8 @@ use axum::{
     http::Request as HttpRequest,
     response::Response as AxumResponse,
 };
-use futures_util::{stream::unfold, TryStreamExt as _};
-use isahc::{
-    AsyncBody as IsahcAsyncBody, AsyncReadResponseExt as _, Error as IsahcError, HttpClient,
-};
+use futures_util::TryStreamExt as _;
+use isahc::{AsyncBody as IsahcAsyncBody, Error as IsahcError, HttpClient};
 
 //
 pub async fn send(
@@ -30,17 +28,7 @@ pub async fn send(
         *response.version_mut() = isahc_response.version();
         *response.headers_mut() = isahc_response.headers().to_owned();
 
-        let buf = vec![];
-        let body_stream = unfold(
-            (isahc_response, buf),
-            |(mut isahc_response, mut buf)| async {
-                match isahc_response.copy_to(&mut buf).await {
-                    Ok(n) if n == 0 => None,
-                    Ok(n) => Some((Ok(buf[..n as usize].to_vec()), (isahc_response, buf))),
-                    Err(err) => Some((Err(err), (isahc_response, buf))),
-                }
-            },
-        );
+        let body_stream = futures_stream_reader::reader(isahc_response.into_body());
 
         let body = AxumStreamBody::new(body_stream);
 
@@ -57,6 +45,7 @@ mod tests {
     use std::net::SocketAddr;
 
     use axum::{routing::get, Router, Server};
+    use isahc::AsyncReadResponseExt as _;
 
     #[tokio::test]
     async fn test_send() -> Result<(), Box<dyn std::error::Error>> {

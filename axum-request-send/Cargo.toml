@@ -19,7 +19,7 @@ all-features = true
 default = ["impl_reqwest"]
 
 impl_reqwest = ["reqwest"]
-impl_isahc = ["isahc", "futures-util/io"]
+impl_isahc = ["isahc", "futures-util/io", "futures-stream-reader"]
 
 [dependencies]
 axum = { version = "0.6", default-features = false }
@@ -27,6 +27,7 @@ axum = { version = "0.6", default-features = false }
 reqwest = { version = "0.11", default-features = false, features = ["stream"], optional = true }
 isahc = { version = "1", default-features = false, optional = true }
 futures-util = { version = "0.3", default-features = false, optional = true }
+futures-stream-reader = { version = "0.2", default-features = false, optional = true }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
