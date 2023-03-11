@@ -1,0 +1,38 @@
+[package]
+name = "axum-request-send"
+version = "0.1.0"
+authors = ["vkill <vkill.net@gmail.com>"]
+edition = "2021"
+description = "axum request send"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/bk-rs/axum-ext"
+homepage = "https://github.com/bk-rs/axum-ext"
+documentation = "https://docs.rs/axum-request-send"
+keywords = []
+categories = []
+readme = "README.md"
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+default = ["impl_reqwest", "impl_isahc"]
+
+impl_reqwest = ["reqwest"]
+impl_isahc = ["isahc", "futures-util/io"]
+
+[dependencies]
+axum = { version = "0.6", default-features = false }
+
+reqwest = { version = "0.11", default-features = false, features = ["stream"], optional = true }
+isahc = { version = "1", default-features = false, optional = true }
+futures-util = { version = "0.3", default-features = false, optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+axum = { version = "0.6", default-features = false, features = ["http1", "tokio"] }
+
+portpicker = { version = "0.1", default-features = false }
+
+[package.metadata.cargo-all-features]
+skip_optional_dependencies = true

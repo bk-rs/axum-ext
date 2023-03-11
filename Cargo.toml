@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "axum-handler-extract",
+    "axum-request-send",
     "axum-service-extract",
 ]
