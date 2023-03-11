@@ -18,7 +18,9 @@ pub async fn send(
         *response.version_mut() = reqwest_response.version();
         *response.headers_mut() = reqwest_response.headers().to_owned();
 
-        let body = AxumStreamBody::new(reqwest_response.bytes_stream());
+        let body_stream = reqwest_response.bytes_stream();
+
+        let body = AxumStreamBody::new(body_stream);
 
         let (parts, _) = response.into_parts();
         AxumResponse::from_parts(parts, axum::body::boxed(body))
