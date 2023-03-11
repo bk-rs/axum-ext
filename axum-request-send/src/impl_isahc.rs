@@ -15,9 +15,14 @@ pub async fn send(
 ) -> Result<AxumResponse, IsahcError> {
     let isahc_request = {
         let (parts, body) = http_request.into_parts();
-        let body = body
-            .map_ok(|x| x.to_vec())
-            .map_err(|err| IoError::new(IoErrorKind::Other, err));
+        let body = body.map_ok(|x| x.to_vec()).map_err(|err| {
+            // Ref https://docs.rs/hyper/0.14.25/src/hyper/error.rs.html#301-313
+            if let Some(cause) = err.into_cause() {
+                IoError::new(IoErrorKind::Other, cause)
+            } else {
+                IoError::new(IoErrorKind::Other, "Unknown".to_string())
+            }
+        });
         let body = IsahcAsyncBody::from_reader(body.into_async_read());
         HttpRequest::from_parts(parts, body)
     };
